@@ -6,7 +6,7 @@ RELEASE_DIR = ./release/
 
 all: compile package
 
-compile: $(BIN_DIR)hl
+compile: $(BIN_DIR)main.hl
 
 package: hl
 
