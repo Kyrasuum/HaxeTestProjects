@@ -63,7 +63,7 @@ jobs:
           name: ${{ matrix.os }} ${{ matrix.proj }} Executable
           retention-days: 1
           path: |
-            ./${{ matrix.proj }/release/${{ runner.os }}
+            ./${{ matrix.proj }}/release/${{ runner.os }}
 
   build-js:
     if: success()
@@ -99,7 +99,7 @@ jobs:
           name: ${{ matrix.os }} ${{ matrix.proj }} Executable
           retention-days: 1
           path: |
-            ./${{ matrix.proj }/release/
+            ./${{ matrix.proj }}/release/
     
   build-hl:
     if: success()
@@ -142,7 +142,7 @@ jobs:
           name: ${{ matrix.os }} ${{ matrix.proj }} Executable
           retention-days: 1
           path: |
-            ./${{ matrix.proj }/release/
+            ./${{ matrix.proj }}/release/
 
   pages:
     if: success()
