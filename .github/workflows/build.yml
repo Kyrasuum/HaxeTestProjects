@@ -35,7 +35,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cd ${{ matrix.proj }}
-          haxelib install build/linux.hxml
+          haxelib install build/linux.hxml --always
           make linux
           cd ..
           
@@ -44,7 +44,7 @@ jobs:
         if: runner.os == 'macOs'
         run: |
           cd ${{ matrix.proj }}
-          haxelib install build/mac.hxml
+          haxelib install build/mac.hxml --always
           make mac
           cd ..
 
@@ -53,7 +53,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd ${{ matrix.proj }}
-          haxelib install build/windows.hxml
+          haxelib install build/windows.hxml --always
           make windows
           cd ..
 
@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
-          haxelib install *.hxml
+          haxelib install *.hxml --always
           make
           cd ..
 
@@ -132,7 +132,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
-          haxelib install *.hxml
+          haxelib install *.hxml --always
           make
           cd ..
 
