@@ -1,3 +1,4 @@
+-lib heaps
 -lib udprotean
 -cp src
 -main Main

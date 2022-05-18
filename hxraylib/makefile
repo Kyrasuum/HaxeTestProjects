@@ -16,6 +16,7 @@ $(BUILD_DIR)linux.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)linux: $(BUILD_DIR)linux.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 linux: $(BIN_DIR)linux
@@ -27,6 +28,7 @@ $(BUILD_DIR)mac.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)mac: $(BUILD_DIR)mac.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 mac: $(BIN_DIR)mac
@@ -38,6 +40,7 @@ $(BUILD_DIR)windows.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)windows: $(BUILD_DIR)windows.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 windows: $(BIN_DIR)windows

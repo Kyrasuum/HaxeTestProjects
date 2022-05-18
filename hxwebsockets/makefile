@@ -17,6 +17,7 @@ $(BUILD_DIR)hl.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)hl: $(BUILD_DIR)hl.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 hl: $(BIN_DIR)hl

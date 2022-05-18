@@ -17,6 +17,6 @@ $(BUILD_DIR)js.hxml: src/**
 
 $(BIN_DIR)web.js: $(BUILD_DIR)js.hxml
 	@haxe $^
-	@mkdir $(RELEASE_DIR)
+	@mkdir -p $(RELEASE_DIR)
 	@cp $(BIN_DIR)* $(RELEASE_DIR)
 	@cp src/index.html $(RELEASE_DIR)

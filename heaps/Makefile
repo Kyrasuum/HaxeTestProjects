@@ -20,6 +20,7 @@ $(BUILD_DIR)hl-dx.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)hl-dx: $(BUILD_DIR)hl-dx.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 hl-dx: $(BIN_DIR)hl-dx
@@ -31,6 +32,7 @@ $(BUILD_DIR)hl-dx-debug.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)hl-dx-debug: $(BUILD_DIR)hl-dx-debug.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 hl-dx-debug: $(BIN_DIR)hl-dx-debug
@@ -42,6 +44,7 @@ $(BUILD_DIR)hl-sdl.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)hl-sdl: $(BUILD_DIR)hl-sdl.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 hl-sdl: $(BIN_DIR)hl-sdl
@@ -53,6 +56,7 @@ $(BUILD_DIR)hl-sdl-debug.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)hl-sdl-debug: $(BUILD_DIR)hl-sdl-debug.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 hl-sdl-debug: $(BIN_DIR)hl-sdl-debug
@@ -64,6 +68,7 @@ $(BUILD_DIR)js.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)js: $(BUILD_DIR)js.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 js: $(BIN_DIR)js
@@ -75,6 +80,7 @@ $(BUILD_DIR)js-debug.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)js-debug: $(BUILD_DIR)js-debug.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 js-debug: $(BIN_DIR)js-debug
@@ -86,6 +92,7 @@ $(BUILD_DIR)swf.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)swf: $(BUILD_DIR)swf.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 swf: $(BIN_DIR)swf
@@ -97,6 +104,7 @@ $(BUILD_DIR)swf-debug.hxml: src/**
 	@touch $@
 
 $(BIN_DIR)swf-debug: $(BUILD_DIR)swf-debug.hxml
+	@haxelib install $^ --always
 	@haxe $^
 
 swf-debug: $(BIN_DIR)swf-debug

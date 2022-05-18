@@ -3,7 +3,6 @@
 -lib castle
 -lib haxeui-core
 -lib haxeui-heaps
--lib hscript
 -cp src
 -main Main
 -dce full
