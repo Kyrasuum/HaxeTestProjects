@@ -70,13 +70,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-        matrix:
-          os: 
-            - ubuntu-latest
-            - macos-latest
-            - windows-latest
-          proj:
-            - web-coconut
+      matrix:
+        os: 
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        proj:
+          - web-coconut
 
     steps:
       - name: Setup
