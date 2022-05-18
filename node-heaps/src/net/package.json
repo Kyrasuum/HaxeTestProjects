@@ -1,0 +1,15 @@
+{
+    "name": "karalis",
+    "bin": "../../bin/net.js",
+    "version": "1.0.0",
+    "description": "Simple 3D game test",
+    "dependencies": {
+        "hyperswarm": "^2.15.3"
+    },
+    "scripts": {
+        "clean": "rm -rf node_modules"
+    },
+    "keywords": [],
+    "author": "Kyrasuum",
+    "license": "GNU"
+}

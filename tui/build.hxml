@@ -1,0 +1,5 @@
+-cp src
+-lib console.hx
+-main Main
+-dce full
+--interp
