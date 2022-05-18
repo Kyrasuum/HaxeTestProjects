@@ -1,5 +1,5 @@
+-lib coroutine
 -cp src
 -main Main
 -dce full
--lib coroutine
---cpp bin
+-D release

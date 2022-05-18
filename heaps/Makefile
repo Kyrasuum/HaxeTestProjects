@@ -1,66 +1,104 @@
 BUILD_DIR = ./build/
+BIN_DIR = ./bin/
+RELEASE_DIR = ./release/
 
-.PHONY: prereq all compile compile-debug package clean hl-dx hl-dx-debug hl-sdl hl-sdl-debug js js-debug swf swf-debug
+.PHONY: all compile compile-debug package clean hl-dx hl-dx-debug hl-sdl hl-sdl-debug js js-debug swf swf-debug
 
 all: compile package
 
-compile: $(BUILD_DIR)hl-dx $(BUILD_DIR)hl-sdl $(BUILD_DIR)js $(BUILD_DIR)swf
+compile: $(BIN_DIR)hl-dx $(BIN_DIR)hl-sdl $(BIN_DIR)js $(BIN_DIR)swf
 
-compile-debug: $(BUILD_DIR)hl-dx-debug $(BUILD_DIR)hl-sdl-debug $(BUILD_DIR)js-debug $(BUILD_DIR)swf-debug
+compile-debug: $(BIN_DIR)hl-dx-debug $(BIN_DIR)hl-sdl-debug $(BIN_DIR)js-debug $(BIN_DIR)swf-debug
 
 package: hl-dx hl-sdl js swf
 
 clean:
-	@rm -rf bin
+	@rm -rf $(BIN_DIR) $(RELEASE_DIR)
 
-$(BUILD_DIR)hl-dx:
-	@haxe $@.hxml
+# hl-dx
+$(BUILD_DIR)hl-dx.hxml: src/**
+	@touch $@
 
-hl-dx: $(BUILD_DIR)hl-dx
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+$(BIN_DIR)hl-dx: $(BUILD_DIR)hl-dx.hxml
+	@haxe $^
 
-$(BUILD_DIR)hl-dx-debug:
-	@haxe $@.hxml
+hl-dx: $(BIN_DIR)hl-dx
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
 
-hl-dx-debug: $(BUILD_DIR)hl-dx-debug
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+# hl-dx-debug
+$(BUILD_DIR)hl-dx-debug.hxml: src/**
+	@touch $@
 
-$(BUILD_DIR)hl-sdl:
-	@haxe $@.hxml
+$(BIN_DIR)hl-dx-debug: $(BUILD_DIR)hl-dx-debug.hxml
+	@haxe $^
 
-hl-sdl: $(BUILD_DIR)hl-sdl
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
-	@mkdir release/hl-sdl/opengl_lin
-	@cp lib/hl release/hl-sdl/opengl_lin/
-	@cp bin/client-sdl.hl release/hl-sdl/opengl_lin/
-	@zip -r release/hl-sdl/opengl_lin.zip release/hl-sdl/opengl_lin/
+hl-dx-debug: $(BIN_DIR)hl-dx-debug
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
 
-$(BUILD_DIR)hl-sdl-debug:
-	@haxe $@.hxml
+# hl-sdl
+$(BUILD_DIR)hl-sdl.hxml: src/**
+	@touch $@
 
-hl-sdl-debug: $(BUILD_DIR)hl-sdl-debug
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+$(BIN_DIR)hl-sdl: $(BUILD_DIR)hl-sdl.hxml
+	@haxe $^
 
-$(BUILD_DIR)js:
-	@haxe $@.hxml
+hl-sdl: $(BIN_DIR)hl-sdl
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
 
-js: $(BUILD_DIR)js
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+# hl-sdl-debug
+$(BUILD_DIR)hl-sdl-debug.hxml: src/**
+	@touch $@
 
-$(BUILD_DIR)js-debug:
-	@haxe $@.hxml
+$(BIN_DIR)hl-sdl-debug: $(BUILD_DIR)hl-sdl-debug.hxml
+	@haxe $^
 
-js-debug: $(BUILD_DIR)js-debug
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+hl-sdl-debug: $(BIN_DIR)hl-sdl-debug
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
 
-$(BUILD_DIR)swf:
-	@haxe $@.hxml
+# js
+$(BUILD_DIR)js.hxml: src/**
+	@touch $@
 
-swf: $(BUILD_DIR)swf
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+$(BIN_DIR)js: $(BUILD_DIR)js.hxml
+	@haxe $^
 
-$(BUILD_DIR)swf-debug:
-	@haxe $@.hxml
+js: $(BIN_DIR)js
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
 
-swf-debug: $(BUILD_DIR)swf-debug
-	@haxelib run redistHelper -hl32 -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+# js-debug
+$(BUILD_DIR)js-debug.hxml: src/**
+	@touch $@
+
+$(BIN_DIR)js-debug: $(BUILD_DIR)js-debug.hxml
+	@haxe $^
+
+js-debug: $(BIN_DIR)js-debug
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+
+# swf
+$(BUILD_DIR)swf.hxml: src/**
+	@touch $@
+
+$(BIN_DIR)swf: $(BUILD_DIR)swf.hxml
+	@haxe $^
+
+swf: $(BIN_DIR)swf
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml
+
+# swf-debug
+$(BUILD_DIR)swf-debug.hxml: src/**
+	@touch $@
+
+$(BIN_DIR)swf-debug: $(BUILD_DIR)swf-debug.hxml
+	@haxe $^
+
+swf-debug: $(BIN_DIR)swf-debug
+	@rm -rf release/$@
+	@haxelib run redistHelper -linux -zip -pak -o release/$@ -p $@ $(BUILD_DIR)$@.hxml

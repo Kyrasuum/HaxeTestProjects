@@ -13,11 +13,11 @@ package: hl
 clean:
 	@rm -rf $(BIN_DIR) $(RELEASE_DIR)
 
-$(BUILD_DIR)hl.hxml: src/**
+$(BUILD_DIR)hl: src/**
 	@touch $@
 
-$(BIN_DIR)hl: $(BUILD_DIR)hl.hxml
-	@haxe $^
+$(BIN_DIR)hl: $(BUILD_DIR)hl
+	@haxe $^.hxml
 
 hl: $(BIN_DIR)hl
 	@haxelib run redistHelper -linux -zip -pak -o $(RELEASE_DIR) -p $@ $(BUILD_DIR)$@.hxml

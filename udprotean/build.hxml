@@ -1,5 +1,0 @@
--cp src
--main Main
--dce full
--lib udprotean
--hl main

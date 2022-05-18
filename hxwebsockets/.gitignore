@@ -11,6 +11,3 @@ bin
 # Vscode debugging
 !.vscode/launch.json
 !.vscode/tasks.json
-
-# Blender Backups
-**/*.blend*

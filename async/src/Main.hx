@@ -18,7 +18,7 @@ function count(timer: haxe.Timer) {
     timer.stop();
 }
 
-function delay(processor: CoroutineProcessor, i: Int, f) {
+function delay(processor: CoroutineProcessor, i: Int, f: Dynamic) {
     var timer = new haxe.Timer(i);
     timer.run = function() {
         processor.updateEnterFrame();

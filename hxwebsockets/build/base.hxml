@@ -1,5 +1,5 @@
+-lib hxWebSockets
 -cp src
 -main Main
 -dce full
--lib hxWebSockets
--hl main.hl
+-D release

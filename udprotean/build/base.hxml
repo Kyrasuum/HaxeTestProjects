@@ -1,4 +1,5 @@
+-lib udprotean
 -cp src
 -main Main
 -dce full
--lib hxRaylib
+-D release

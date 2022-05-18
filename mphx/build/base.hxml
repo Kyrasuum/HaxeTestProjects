@@ -1,4 +1,5 @@
+-lib mphx
 -cp src
 -main Main
 -dce full
--lib hxRaylib
+-D release
