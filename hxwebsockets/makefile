@@ -16,9 +16,9 @@ clean:
 $(BUILD_DIR)hl.hxml: src/**
 	@touch $@
 
-$(BIN_DIR)hl: $(BUILD_DIR)hl.hxml
+$(BIN_DIR)main.hl: $(BUILD_DIR)hl.hxml
 	@haxelib install $^ --always
 	@haxe $^
 
-hl: $(BIN_DIR)hl
+hl: $(BIN_DIR)main.hl
 	@haxelib run redistHelper -linux -zip -pak -o $(RELEASE_DIR) -p $@ $(BUILD_DIR)$@.hxml
