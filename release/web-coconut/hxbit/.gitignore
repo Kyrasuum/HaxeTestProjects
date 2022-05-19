@@ -1,0 +1,18 @@
+
+# Project build files
+release
+bin
+redist
+
+# IDE artifacts
+.vscode/*
+.idea
+**/*sublime*
+**/log.txt
+
+# Vscode debugging
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Blender Backups
+**/*.blend*
