@@ -248,19 +248,19 @@ jobs:
           diff-search: true
     
       - name: Create Release
-        if: !steps.check.outputs.haxelib
+        if: steps.check.outputs.haxelib != "true"
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ github.ref }}
+          release_name: ${{ matrix.proj }} Release-${{ matrix.os }}
           draft: true
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -286,16 +286,16 @@ jobs:
 
       - name: Clone repo for publishing
         uses: actions/checkout@v2
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
         uses: krdlab/setup-haxe@v1
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -347,26 +347,26 @@ jobs:
         id: check
 
       - uses: EndBug/version-check@v1
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true"
         id: check
         with:
           file-name: haxelib.json
           diff-search: true
     
       - name: Create Release
-        if: steps.artifact.conclusion != 'failure' && !steps.check.outputs.haxelib
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib != "true"
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ github.ref }}
+          release_name: ${{ matrix.proj }} Release-${{ matrix.os }}
           draft: true
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -393,7 +393,7 @@ jobs:
 
       - name: Clone repo for publishing
         uses: actions/checkout@v2
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
         uses: krdlab/setup-haxe@v1
@@ -402,7 +402,7 @@ jobs:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -443,19 +443,19 @@ jobs:
           diff-search: true
     
       - name: Create Release
-        if: !steps.check.outputs.haxelib
+        if: steps.check.outputs.haxelib != "true"
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} pages ${{ github.ref }}
+          release_name: ${{ matrix.proj }} pages
           draft: true
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -481,16 +481,16 @@ jobs:
 
       - name: Clone repo for publishing
         uses: actions/checkout@v2
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
         uses: krdlab/setup-haxe@v1
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
