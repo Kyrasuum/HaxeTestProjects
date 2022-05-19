@@ -1,4 +1,0 @@
-build/base.hxml
--lib hxnodejs
--js bin/main.js
--D js-es=6

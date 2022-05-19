@@ -1,6 +1,0 @@
--lib hxcpp-debug-server
--lib heaps
--cp src
--main Main
--dce full
--D release

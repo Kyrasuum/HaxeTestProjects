@@ -1,6 +1,0 @@
--lib heaps
--lib hxWebSockets
--cp src
--main Main
--dce full
--D release

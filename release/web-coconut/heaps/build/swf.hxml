@@ -1,4 +1,0 @@
-build/base.hxml
--swf bin/sqf
--swf-header 1400:700:60:000000
--swf-version 24.0

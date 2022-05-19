@@ -1,6 +1,0 @@
--lib heaps
--lib udprotean
--cp src
--main Main
--dce full
--D release
