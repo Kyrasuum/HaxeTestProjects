@@ -18,6 +18,7 @@ $(BUILD_DIR)hl.hxml: src/**
 
 $(BIN_DIR)main.hl: $(BUILD_DIR)hl.hxml
 	@haxelib install $^ --always
+	@haxelib git mphx https://github.com/5Mixer/mphx.git
 	@haxe $^
 
 hl: $(BIN_DIR)main.hl
