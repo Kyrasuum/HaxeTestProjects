@@ -179,7 +179,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
-          folder: ./
+          folder: ${{ matrix.os }} ${{ matrix.proj }} Executable
           target-folder: release/${{ matrix.proj }}
 
   release:
