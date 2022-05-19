@@ -259,7 +259,7 @@ jobs:
 
       - name: Create Haxelib Release
         if: steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
-        id: create_release
+        id: create_hl_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -270,6 +270,7 @@ jobs:
           prerelease: true
 
       - name: Upload Release Asset
+        if: steps.check.outputs.haxelib != 'true'
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -278,6 +279,20 @@ jobs:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release.7z
+          asset_name: release.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: Upload Haxelib Release Asset
+        if: steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
+        id: upload-hl-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
           asset_path: ./release.7z
           asset_name: release.7z
           asset_content_type: application/x-7z-compressed
@@ -363,7 +378,7 @@ jobs:
 
       - name: Create Haxelib Release
         if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
-        id: create_release
+        id: create_hl_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -374,7 +389,7 @@ jobs:
           prerelease: true
 
       - name: Upload Release Asset
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.check.outputs.haxelib != 'true'
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -383,6 +398,20 @@ jobs:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release.7z
+          asset_name: release.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: Upload Haxelib Release Asset
+        if: steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
+        id: upload-hl-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
           asset_path: ./release.7z
           asset_name: release.7z
           asset_content_type: application/x-7z-compressed
@@ -452,7 +481,7 @@ jobs:
 
       - name: Create Haxelib Release
         if: steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
-        id: create_release
+        id: create_hl_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -461,8 +490,9 @@ jobs:
           release_name: ${{ matrix.proj }} pages ${{ steps.version.outputs.version }}
           draft: true
           prerelease: true
-        
+
       - name: Upload Release Asset
+        if: steps.check.outputs.haxelib != 'true'
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -471,6 +501,20 @@ jobs:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release.7z
+          asset_name: release.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: Upload Haxelib Release Asset
+        if: steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
+        id: upload-hl-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
           asset_path: ./release.7z
           asset_name: release.7z
           asset_content_type: application/x-7z-compressed
