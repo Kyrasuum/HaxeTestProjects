@@ -213,8 +213,6 @@ jobs:
   release-cpp:
     if: success()
     needs: [build-cpp]
-    outputs: # expose release.outputs.released for the "publish" job
-      released: ${{ steps.check.outputs.version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -242,7 +240,7 @@ jobs:
 
       - uses: EndBug/version-check@v1
         if: steps.check.outputs.haxelib
-        id: check
+        id: version
         with:
           file-name: haxelib.json
           diff-search: true
@@ -260,14 +258,14 @@ jobs:
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.check.outputs.version }}
+          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
           draft: true
           prerelease: true
 
@@ -285,17 +283,17 @@ jobs:
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         uses: actions/checkout@v2
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -307,8 +305,6 @@ jobs:
   release-hl:
     if: success()
     needs: [build-hl]
-    outputs: # expose release.outputs.released for the "publish" job
-      released: ${{ steps.check.outputs.version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -348,7 +344,7 @@ jobs:
 
       - uses: EndBug/version-check@v1
         if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true"
-        id: check
+        id: version
         with:
           file-name: haxelib.json
           diff-search: true
@@ -366,14 +362,14 @@ jobs:
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.check.outputs.version }}
+          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
           draft: true
           prerelease: true
 
@@ -392,17 +388,17 @@ jobs:
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         uses: actions/checkout@v2
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
+        if: steps.check.outputs.haxelib && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
-        if: steps.check.outputs.haxelib && steps.check.outputs.changed
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -437,7 +433,7 @@ jobs:
 
       - uses: EndBug/version-check@v1
         if: steps.check.outputs.haxelib
-        id: check
+        id: version
         with:
           file-name: haxelib.json
           diff-search: true
@@ -455,14 +451,14 @@ jobs:
           prerelease: true
 
       - name: Create Haxelib Release
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} pages ${{ steps.check.outputs.version }}
+          release_name: ${{ matrix.proj }} pages ${{ steps.version.outputs.version }}
           draft: true
           prerelease: true
         
@@ -480,17 +476,17 @@ jobs:
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         uses: actions/checkout@v2
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
 
       - name: Setup publishing haxelib
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.check.outputs.haxelib == "true" && steps.check.outputs.changed
+        if: steps.check.outputs.haxelib == "true" && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
