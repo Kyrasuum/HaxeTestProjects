@@ -1,5 +1,5 @@
 -cp src
 -main Main
 -dce full
--lib console.hx
+-lib Console.hx
 -lib crypto
