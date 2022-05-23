@@ -18,9 +18,10 @@
         "outputPath": "dist"
     },
     "scripts": {
-        "dev": "haxe default.hxml && node bin/main.js",
-        "dist": "pkg .",
-        "clean": "rm -rf node_modules package-lock.json bin"
+        "build": "haxe default.hxml && npm i",
+        "dev": "npm run build && node bin/main.js",
+        "dist": "npm run build && pkg .",
+        "clean": "rm -rf node_modules package-lock.json bin dist"
     },
     "keywords": [],
     "author": "Kyrasuum",

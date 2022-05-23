@@ -1,193 +1,22 @@
-# https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
 name: Publish Projects
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-cpp:
-    if: success()
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: 
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-        proj:
-          - hxraylib
+  call-build-workflow:
+    uses: ./.github/workflows/build.yml
 
-    steps:
-      - name: Setup
-        uses: Kyrasuum/HaxeHLSetup@v1
-        
-      - name: Git Checkout
-        uses: actions/checkout@v2 #https://github.com/actions/checkout
-
-      - name: Build CPP Project (Linux)
-        shell: bash
-        if: runner.os == 'Linux'
-        run: |
-          cd ${{ matrix.proj }}
-          haxelib install build/linux.hxml --always
-          make linux
-          cd ..
-          
-      - name: Build CPP Project (Mac)
-        shell: bash
-        if: runner.os == 'macOs'
-        run: |
-          cd ${{ matrix.proj }}
-          haxelib install build/mac.hxml --always
-          make mac
-          cd ..
-
-      - name: Build CPP Project (Windows)
-        shell: bash
-        if: runner.os == 'Windows'
-        run: |
-          cd ${{ matrix.proj }}
-          haxelib install build/windows.hxml --always
-          make windows
-          cd ..
-
-      - name: Archive cpp production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }} ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/${{ runner.os }}
-
-  build-js:
+  remove-old-drafts:
     if: success()
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        proj:
-          - web-coconut
-
     steps:
-      - name: Setup
-        uses: Kyrasuum/HaxeHLSetup@v1
+      - name: Delete drafts
+        uses: hugo19941994/delete-draft-releases@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Git Checkout
-        uses: actions/checkout@v2 #https://github.com/actions/checkout
-
-      - name: Build JS Project
-        shell: bash
-        run: |
-          cd ${{ matrix.proj }}
-          haxelib install *.hxml --always
-          make
-          cd ..
-
-      - name: Archive js production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/
-    
-  build-hl:
-    if: success()
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        proj:
-          - heaps-cubefield
-          - heaps
-          - hl-tui
-          - hxbit
-          - hxwebsockets
-          - mphx
-          - udprotean
-
-    steps:
-      - name: Setup
-        uses: Kyrasuum/HaxeHLSetup@v1
-
-      - name: Git Checkout
-        uses: actions/checkout@v2 #https://github.com/actions/checkout
-
-      - name: Build HL Project
-        shell: bash
-        run: |
-          cd ${{ matrix.proj }}
-          haxelib install *.hxml --always
-          make
-          cd ..
-
-      - name: Archive linux hl production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: linux ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*_linux/hl
-
-      - name: Archive windows hl production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*_win/hl
-            
-      - name: Archive linux hl-sdl production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: linux ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*/*_linux/hl
-
-      - name: Archive windows hl-sdl production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*/*_win/hl
-            
-      - name: Archive windows directx production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: directx ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*/directx/*
-
-      - name: Archive js production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: js ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/*/js/
-
-      - name: Archive swf production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: swf ${{ matrix.proj }}
-          retention-days: 1
-          if-no-files-found: ignore
-          path: |
-            ./${{ matrix.proj }}/release/swf/flash/swf/
-
-  pages:
+  pages-js:
     if: success()
     needs: [build-js]
     runs-on: ubuntu-latest
@@ -213,6 +42,46 @@ jobs:
           branch: pages
           folder: release
           target-folder: release/${{ matrix.proj }}
+
+  pages-hl:
+    if: success()
+    needs: [build-hl]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - js
+          - swf
+        proj:
+          - async
+          - heaps
+          - heaps-cubefield
+          - hl-tui
+          - hxbit
+          - hxwebsockets
+          - mphx
+          - udprotean
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2 #https://github.com/actions/checkout
+        
+      - name: Download build artifacts
+        continue-on-error: true
+        id: artifact
+        uses: actions/download-artifact@v1
+        with:
+            name: ${{ matrix.os }} ${{ matrix.proj }}
+            path: release
+            
+      - name: Deploy gh-pages
+        if: steps.artifact.conclusion != 'failure'
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: pages
+          folder: release
+          target-folder: release/${{ matrix.proj }}-${{ matrix.os }} 
 
   release-cpp:
     if: success()
@@ -340,8 +209,9 @@ jobs:
           - js
           - swf
         proj:
-          - heaps-cubefield
+          - async
           - heaps
+          - heaps-cubefield
           - hl-tui
           - hxbit
           - hxwebsockets
