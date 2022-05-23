@@ -1,5 +1,5 @@
 -cp src
 -main Main
 -dce full
--lib Console.hx
+-lib console.hx
 -lib hxnodejs

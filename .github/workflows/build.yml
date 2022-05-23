@@ -46,6 +46,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
+          haxelib install Console.hx --always
           haxelib install build/node.hxml --always
           npm install
 
@@ -90,6 +91,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
+          haxelib install Console.hx --always
           haxelib install build.hxml --always
           haxe build.hxml
 

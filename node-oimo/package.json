@@ -18,7 +18,7 @@
         "outputPath": "dist"
     },
     "scripts": {
-        "build": "haxe default.hxml && npm i",
+        "build": "haxelib install Console.hx && haxe default.hxml && npm i",
         "dev": "npm run build && node bin/main.js",
         "dist": "npm run build && pkg .",
         "clean": "rm -rf node_modules package-lock.json bin dist"
