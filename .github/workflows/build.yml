@@ -23,7 +23,6 @@ jobs:
           - linux
         proj:
           - node
-          - node-heaps
           - node-oimo
           - node-p2p
           - node-p2p-pkg
