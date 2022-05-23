@@ -8,8 +8,8 @@
     "scripts": {
         "build": "cd src/net && npm run build && cd ../.. && haxelib install default.hxml --always && npm i && haxe default.hxml && cp src/main.html bin/index.html",
         "dev": "npm run build && cd bin && firefox ./index.html",
-        "dist": "cp bin dist",
-        "clean": "rm -rf node_modules bin && cd src/net && npm run clean"
+        "dist": "cp -r bin dist",
+        "clean": "rm -rf node_modules bin dist && cd src/net && npm run clean"
     },
     "keywords": [],
     "author": "Kyrasuum",
