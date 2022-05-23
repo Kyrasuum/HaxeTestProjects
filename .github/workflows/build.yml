@@ -49,15 +49,15 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
-          haxelib install build/node.hxml
+          haxelib install build/node.hxml --always
           npm install
 
       - name: Build Node Project
         shell: bash
         run: |
+          cd ${{ matrix.proj }}
           npm run build --if-present
           npm run dist --if-present
-          cd ..
 
       - name: Archive Node Production Artifacts
         uses: actions/upload-artifact@v2
@@ -93,9 +93,8 @@ jobs:
         shell: bash
         run: |
           cd ${{ matrix.proj }}
-          haxelib install build.hxml
+          haxelib install build.hxml --always
           haxe build.hxml
-          cd ..
 
   build-cpp:
     if: success()
@@ -124,7 +123,6 @@ jobs:
           cd ${{ matrix.proj }}
           haxelib install build/linux.hxml --always
           make linux
-          cd ..
           
       - name: Build CPP Project (Mac)
         shell: bash
@@ -133,7 +131,6 @@ jobs:
           cd ${{ matrix.proj }}
           haxelib install build/mac.hxml --always
           make mac
-          cd ..
 
       - name: Build CPP Project (Windows)
         shell: bash
@@ -142,7 +139,6 @@ jobs:
           cd ${{ matrix.proj }}
           haxelib install build/windows.hxml --always
           make windows
-          cd ..
 
       - name: Archive CPP Production Artifacts
         uses: actions/upload-artifact@v2
@@ -175,7 +171,6 @@ jobs:
           cd ${{ matrix.proj }}
           haxelib install *.hxml --always
           make
-          cd ..
 
       - name: Archive JS Production Artifacts
         uses: actions/upload-artifact@v2
@@ -215,7 +210,6 @@ jobs:
           cd ${{ matrix.proj }}
           haxelib install *.hxml --always
           make
-          cd ..
 
       - name: Archive Linux HL Production Artifacts
         uses: actions/upload-artifact@v2
