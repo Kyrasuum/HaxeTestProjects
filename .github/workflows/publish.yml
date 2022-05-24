@@ -25,15 +25,14 @@ jobs:
         uses: actions/checkout@v2 #https://github.com/actions/checkout
         
       - name: Download build artifacts
-        uses: actions/download-artifact@v1
         continue-on-error: true
-        id: artifact
+        uses: actions/download-artifact@v1
         with:
             name: ${{ matrix.proj }}
             path: release
 
       - name: Deploy gh-pages
-        if: steps.artifact.conclusion == 'success'
+        continue-on-error: true
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
@@ -42,7 +41,7 @@ jobs:
 
   pages-hl:
     if: success()
-    needs: [build, pages-js]
+    needs: [pages-js]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -67,14 +66,13 @@ jobs:
         
       - name: Download build artifacts
         continue-on-error: true
-        id: artifact
         uses: actions/download-artifact@v1
         with:
             name: ${{ matrix.os }} ${{ matrix.proj }}
             path: release
             
       - name: Deploy gh-pages
-        if: steps.artifact.conclusion == 'success'
+        continue-on-error: true
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
@@ -93,6 +91,7 @@ jobs:
         id: release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
           prerelease: false
 
   release-cpp:
