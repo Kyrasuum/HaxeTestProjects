@@ -2,19 +2,13 @@ name: Publish Projects
 
 on:
   workflow_dispatch:
-
+  push:
+    branches: ["master", "main"]
+    tags:
+      - "v*"
 jobs:
   build:
     uses: ./.github/workflows/build.yml
-
-  remove-old-drafts:
-    if: success()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete drafts
-        uses: hugo19941994/delete-draft-releases@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pages-js:
     if: success()
@@ -22,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         proj:
           - web-coconut
@@ -32,11 +27,14 @@ jobs:
         
       - name: Download build artifacts
         uses: actions/download-artifact@v1
+        continue-on-error: true
+        id: artifact
         with:
             name: ${{ matrix.proj }}
             path: release
 
       - name: Deploy gh-pages
+        if: steps.artifact.conclusion == 'success'
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
@@ -45,10 +43,11 @@ jobs:
 
   pages-hl:
     if: success()
-    needs: [build]
+    needs: [build pages-js]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         os:
           - js
@@ -76,16 +75,30 @@ jobs:
             path: release
             
       - name: Deploy gh-pages
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
           folder: release
           target-folder: release/${{ matrix.proj }}-${{ matrix.os }} 
 
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+      tag: ${{ steps.release.outputs.automatic_releases_tag }}
+
+    steps:
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        id: release
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+
   release-cpp:
     if: success()
-    needs: [build]
+    needs: [build release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -106,49 +119,25 @@ jobs:
             name: ${{ matrix.os }} ${{ matrix.proj }}
             
       - uses: edgarrc/action-7z@v1
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         with:
           args: 7z a -t7z -mx=9 release.7z ./
 
       - name: Check for haxelib
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         run: echo '::set-output name=haxelib::'`(test -f haxelib.json && echo "true") || echo "false"`
         id: check
 
       - uses: EndBug/version-check@v1
         continue-on-error: true
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib
         id: version
         with:
           file-name: haxelib.json
           diff-search: true
-    
-      - name: Create Release
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }}
-          draft: true
-          prerelease: true
-
-      - name: Create Haxelib Release
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
-        id: create_hl_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
-          draft: true
-          prerelease: true
 
       - name: Upload Release Asset
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
+        if: steps.artifact.conclusion == 'success' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -156,13 +145,13 @@ jobs:
         with:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }}
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Haxelib Release Asset
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         id: upload-hl-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -170,23 +159,23 @@ jobs:
         with:
         # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: actions/checkout@v2
 
       - name: Setup publishing haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -197,7 +186,7 @@ jobs:
 
   release-hl:
     if: success()
-    needs: [build]
+    needs: [build release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -227,49 +216,25 @@ jobs:
             name: ${{ matrix.os }} ${{ matrix.proj }}
             
       - uses: edgarrc/action-7z@v1
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         with:
           args: 7z a -t7z -mx=9 release.7z ./
 
       - name: Check for haxelib
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         run: echo '::set-output name=haxelib::'`(test -f haxelib.json && echo "true") || echo "false"`
         id: check
 
       - uses: EndBug/version-check@v1
         continue-on-error: true
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true'
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true'
         id: version
         with:
           file-name: haxelib.json
           diff-search: true
-    
-      - name: Create Release
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }}
-          draft: true
-          prerelease: true
-
-      - name: Create Haxelib Release
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.outputs.changed
-        id: create_hl_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
-          draft: true
-          prerelease: true
 
       - name: Upload Release Asset
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
+        if: steps.artifact.conclusion == 'success' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -277,13 +242,13 @@ jobs:
         with:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }}
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Haxelib Release Asset
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         id: upload-hl-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -291,23 +256,23 @@ jobs:
         with:
         # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: actions/checkout@v2
 
       - name: Setup publishing haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
@@ -318,7 +283,7 @@ jobs:
 
   release-js:
     if: success()
-    needs: [build]
+    needs: [build release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -335,49 +300,25 @@ jobs:
             name: ${{ matrix.proj }}
             
       - uses: edgarrc/action-7z@v1
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         with:
           args: 7z a -t7z -mx=9 release.7z ./
 
       - name: Check for haxelib
-        if: steps.artifact.conclusion != 'failure'
+        if: steps.artifact.conclusion == 'success'
         run: echo '::set-output name=haxelib::'`(test -f haxelib.json && echo "true") || echo "false"`
         id: check
 
       - uses: EndBug/version-check@v1
         continue-on-error: true
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib
         id: version
         with:
           file-name: haxelib.json
           diff-search: true
-    
-      - name: Create Release
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ matrix.proj }} pages
-          draft: true
-          prerelease: true
-
-      - name: Create Haxelib Release
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
-        id: create_hl_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.check.outputs.version }}
-          release_name: ${{ matrix.proj }} pages ${{ steps.version.outputs.version }}
-          draft: true
-          prerelease: true
 
       - name: Upload Release Asset
-        if: steps.artifact.conclusion != 'failure' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
+        if: steps.artifact.conclusion == 'success' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -385,13 +326,13 @@ jobs:
         with:
         # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-Pages
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Haxelib Release Asset
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         id: upload-hl-release-asset 
         uses: actions/upload-release-asset@v1
         env:
@@ -399,23 +340,23 @@ jobs:
         with:
         # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_hl_release.outputs.upload_url }}
+          upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
-          asset_name: release.7z
+          asset_name: ${{ matrix.proj }} Release-Pages ${{ steps.version.outputs.version }}
           asset_content_type: application/x-7z-compressed
 
       - name: Clone repo for publishing
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: actions/checkout@v2
 
       - name: Setup publishing haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
       - name: Publish to haxelib
-        if: steps.artifact.conclusion != 'failure' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion != 'failure' && steps.version.outputs.changed
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
         shell: bash
         run: |
           cd ${{ matrix.proj }}
