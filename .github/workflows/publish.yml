@@ -3,7 +3,6 @@ name: Publish Projects
 on:
   workflow_dispatch:
   push:
-    branches: ["master", "main"]
     tags:
       - "v*"
 jobs:
@@ -43,7 +42,7 @@ jobs:
 
   pages-hl:
     if: success()
-    needs: [build pages-js]
+    needs: [build, pages-js]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -98,7 +97,7 @@ jobs:
 
   release-cpp:
     if: success()
-    needs: [build release]
+    needs: [build, release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -186,7 +185,7 @@ jobs:
 
   release-hl:
     if: success()
-    needs: [build release]
+    needs: [build, release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -283,7 +282,7 @@ jobs:
 
   release-js:
     if: success()
-    needs: [build release]
+    needs: [build, release]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
