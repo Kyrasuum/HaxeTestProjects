@@ -1,0 +1,73 @@
+name: Run Tests
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build Projects"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  test-js:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        proj:
+          - web-coconut
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v1
+        with:
+            name: ${{ matrix.proj }}
+            path: release
+
+  test-hl:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - js
+          - swf
+        proj:
+          - async
+          - heaps
+          - heaps-cubefield
+          - hl-tui
+          - hxbit
+          - hxwebsockets
+          - mphx
+          - udprotean
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v1
+        with:
+            name: ${{ matrix.os }} ${{ matrix.proj }}
+            path: release
+
+  test-cpp:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: 
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        proj:
+          - hxraylib
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v1
+        with:
+            name: ${{ matrix.os }} ${{ matrix.proj }}
+            path: release
