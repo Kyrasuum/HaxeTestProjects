@@ -29,6 +29,7 @@ jobs:
           - node-p2p-pkg
           - node-three
           - node-heaps
+          - node-tui
 
     steps:
       - name: Setup
@@ -79,6 +80,7 @@ jobs:
         proj:
           - tui
           - helloworld
+          - nothing
 
     steps:
       - name: Setup

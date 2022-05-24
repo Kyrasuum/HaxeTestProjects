@@ -1,10 +1,13 @@
 {
-    "name": "node-hx",
+    "name": "strangelet",
     "bin": "bin/main.js",
     "version": "1.0.0",
-    "description": "Simple node test",
+    "description": "Simple terminal text editor",
     "dependencies": {
-        "pkg": "^5.5.2"
+        "blessed-contrib": "^4.11.0",
+        "blessed-xterm": "^1.4.2",
+        "pkg": "^5.5.2",
+        "reblessed": "^0.1.84"
     },
     "pkg": {
         "targets": [
@@ -18,10 +21,12 @@
         "outputPath": "dist"
     },
     "scripts": {
-        "dev": "haxe default.hxml && node bin/main.js",
-        "dist": "pkg .",
-        "clean": "rm -rf node_modules package-lock.json bin"
+        "build": "haxe default.hxml && npm i",
+        "dev": "npm run build && node bin/main.js",
+        "dist": "npm run build && pkg .",
+        "clean": "rm -rf node_modules package-lock.json bin dist"
     },
+
     "keywords": [],
     "author": "Kyrasuum",
     "license": "GNU"

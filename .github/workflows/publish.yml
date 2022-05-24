@@ -94,6 +94,79 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: false
 
+  release-node:
+    if: success()
+    needs: [build, release]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: 
+          - win
+          - linux
+        proj:
+          - node
+          - node-oimo
+          - node-p2p
+          - node-p2p-pkg
+          - node-three
+          - node-heaps
+          - node-tui
+
+    steps:
+      - name: Download build artifacts
+        continue-on-error: true
+        id: artifact
+        uses: actions/download-artifact@v1
+        with:
+            name: ${{ matrix.os }} ${{ matrix.proj }}
+            
+      - uses: edgarrc/action-7z@v1
+        if: steps.artifact.conclusion == 'success'
+        with:
+          args: 7z a -t7z -mx=9 release.7z ./
+
+      - name: Check for package json
+        if: steps.artifact.conclusion == 'success'
+        run: echo '::set-output name=haxelib::'`(test -f package.json && echo "true") || echo "false"`
+        id: check
+
+      - uses: EndBug/version-check@v1
+        continue-on-error: true
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true'
+        id: version
+        with:
+          file-name: package.json
+          diff-search: true
+
+      - name: Upload Release Asset
+        if: steps.artifact.conclusion == 'success' && (steps.check.outputs.haxelib != 'true' || steps.version.conclusion == 'failure')
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{needs.release.outputs.upload_url}}
+          asset_path: ./release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }}
+          asset_content_type: application/x-7z-compressed
+
+      - name: Upload Haxelib Release Asset
+        if: steps.artifact.conclusion == 'success' && steps.check.outputs.haxelib == 'true' && steps.version.conclusion == 'success' && steps.version.outputs.changed
+        id: upload-hl-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{needs.release.outputs.upload_url}}
+          asset_path: ./release.7z
+          asset_name: ${{ matrix.proj }} Release-${{ matrix.os }} ${{ steps.version.outputs.version }}
+          asset_content_type: application/x-7z-compressed
+
   release-cpp:
     if: success()
     needs: [build, release]
@@ -141,7 +214,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
@@ -155,7 +228,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
@@ -238,7 +311,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
@@ -252,7 +325,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
@@ -322,7 +395,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z
@@ -336,7 +409,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        # This pulls from the CREATE HL RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
+        # This pulls from the RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. 
         # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           upload_url: ${{needs.release.outputs.upload_url}}
           asset_path: ./release.7z

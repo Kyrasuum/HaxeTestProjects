@@ -1,0 +1,20 @@
+# Project build files
+release
+bin
+
+# Node files
+package-lock.json
+node_modules
+
+# IDE artifacts
+.vscode/*
+.idea
+**/*sublime*
+**/log.txt
+
+# Vscode debugging
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Blender Backups
+**/*.blend*

@@ -1,4 +1,4 @@
 -cp src
 -main Main
 -dce full
--D analyzer-optimize
+--interp
