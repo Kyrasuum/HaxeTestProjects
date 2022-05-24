@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
+        id: artifact
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
@@ -48,6 +50,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - linux
+          - windows
+          - directx
           - js
           - swf
         proj:
@@ -63,6 +68,8 @@ jobs:
     steps:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
+        id: artifact
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
@@ -98,6 +105,8 @@ jobs:
     steps:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
+        id: artifact
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
