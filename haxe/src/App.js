@@ -1,12 +1,11 @@
 import './App.css';
-import { Container,Button,Navbar,Offcanvas,Nav,NavDropdown,Form,FormControl } from 'react-bootstrap';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container,Navbar,Offcanvas,Nav } from 'react-bootstrap';
+
 
 
 function App() {
   return (
     <div className="App">
-    <body>
 
         <>
   {[false].map((expand) => (
@@ -43,12 +42,13 @@ function App() {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="justify-content-end flex-grow-1 pe-3">
-              <Nav.Link href="#action1">Link1</Nav.Link>
-              <Nav.Link href="#action2">Link2</Nav.Link>
-              <Nav.Link href="#action3">Link3</Nav.Link>
-              <Nav.Link href="#action4">Link4</Nav.Link>
-              <Nav.Link href="#action5">Link5</Nav.Link>
-
+              <Nav.Link onClick={() => updateContent("Web-Coconut")}>Web-Coconut</Nav.Link>
+              <Nav.Link href="#action2">hxbit-swf</Nav.Link>
+              <Nav.Link href="#action3">hxbit-js</Nav.Link>
+              <Nav.Link href="#action4">heaps-swf</Nav.Link>
+              <Nav.Link href="#action5">heaps-js</Nav.Link>
+              <Nav.Link href="#action5">heaps-cubefield-swf</Nav.Link>
+              <Nav.Link href="#action5">heaps-cubefield-js</Nav.Link>
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
@@ -57,11 +57,18 @@ function App() {
   ))}
 </>
 
-    </body>
+<h3>Content</h3>
+
+<iframe title="myFrame" src="http://www.youtube.com/watch?v=N-czyH3NH0w"></iframe>
+
 
   </div>
 
   );
 }
+
+  const updateContent = (a) => {
+    console.log(a);
+  }
 
 export default App;
