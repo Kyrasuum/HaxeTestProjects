@@ -1,4 +1,3 @@
--lib hxcpp-debug-server
 -lib heaps
 -cp src
 -main Main

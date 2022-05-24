@@ -262,7 +262,7 @@ jobs:
           retention-days: 1
           if-no-files-found: ignore
           path: |
-            ./${{ matrix.proj }}/release/*/js/
+            ./${{ matrix.proj }}/release/js/js/
 
       - name: Archive SWF Production Artifacts
         uses: actions/upload-artifact@v2

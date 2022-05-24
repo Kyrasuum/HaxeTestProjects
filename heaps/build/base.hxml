@@ -1,4 +1,3 @@
--lib hxcpp-debug-server
 -lib heaps
 -lib castle
 -lib haxeui-core
