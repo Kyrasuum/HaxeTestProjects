@@ -20,11 +20,26 @@ jobs:
           - web-coconut
 
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v1
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-            name: ${{ matrix.proj }}
-            path: release
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build.yml
+          workflow_conclusion: success
+          # Optional, uploaded artifact name,
+          # will download all artifacts if not specified
+          # and extract them in respective subdirectories
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          name: ${{ matrix.proj }}
+          # Optional, directory where to extract artifact(s), defaults to current directory
+          path: release
+          # Optional, check the workflow run whether it has an artifact
+          # then will get the last available artifact from previous workflow
+          # default false, just try to download from the last one
+          check_artifacts:  true
+          # Optional, search for the last workflow run whose stored an artifact named as in `name` input
+          # default false
+          search_artifacts: true
 
   test-hl:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -46,11 +61,26 @@ jobs:
           - udprotean
 
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v1
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-            name: ${{ matrix.os }} ${{ matrix.proj }}
-            path: release
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build.yml
+          workflow_conclusion: success
+          # Optional, uploaded artifact name,
+          # will download all artifacts if not specified
+          # and extract them in respective subdirectories
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          name: ${{ matrix.os }} ${{ matrix.proj }}
+          # Optional, directory where to extract artifact(s), defaults to current directory
+          path: release
+          # Optional, check the workflow run whether it has an artifact
+          # then will get the last available artifact from previous workflow
+          # default false, just try to download from the last one
+          check_artifacts:  true
+          # Optional, search for the last workflow run whose stored an artifact named as in `name` input
+          # default false
+          search_artifacts: true
 
   test-cpp:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -66,8 +96,23 @@ jobs:
           - hxraylib
 
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v1
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-            name: ${{ matrix.os }} ${{ matrix.proj }}
-            path: release
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build.yml
+          workflow_conclusion: success
+          # Optional, uploaded artifact name,
+          # will download all artifacts if not specified
+          # and extract them in respective subdirectories
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          name: ${{ matrix.os }} ${{ matrix.proj }}
+          # Optional, directory where to extract artifact(s), defaults to current directory
+          path: release
+          # Optional, check the workflow run whether it has an artifact
+          # then will get the last available artifact from previous workflow
+          # default false, just try to download from the last one
+          check_artifacts:  true
+          # Optional, search for the last workflow run whose stored an artifact named as in `name` input
+          # default false
+          search_artifacts: true
