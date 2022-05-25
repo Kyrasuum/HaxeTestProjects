@@ -10,19 +10,6 @@ on:
       - completed
 
 jobs:
-  dependency-review:
-    name: Dependency-Review
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: 'Checkout Repository'
-        uses: actions/checkout@v3
-
-      - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v1
-
   test-js:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
