@@ -1,9 +1,11 @@
 import './App.css';
 import { Container,Navbar,Offcanvas,Nav } from 'react-bootstrap';
-
-
+import React, { useState } from 'react';
 
 function App() {
+  const [name, setName] = useState("");
+
+
   return (
     <div className="App">
 
@@ -42,13 +44,13 @@ function App() {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="justify-content-end flex-grow-1 pe-3">
-              <Nav.Link onClick={() => updateContent("Web-Coconut")}>Web-Coconut</Nav.Link>
-              <Nav.Link href="#action2">hxbit-swf</Nav.Link>
-              <Nav.Link href="#action3">hxbit-js</Nav.Link>
-              <Nav.Link href="#action4">heaps-swf</Nav.Link>
-              <Nav.Link href="#action5">heaps-js</Nav.Link>
-              <Nav.Link href="#action5">heaps-cubefield-swf</Nav.Link>
-              <Nav.Link href="#action5">heaps-cubefield-js</Nav.Link>
+              <Nav.Link onClick={() => setName("Web-Coconut")}>Web-Coconut</Nav.Link>
+              <Nav.Link onClick={() => setName("hxbit-swf")}>hxbit-swf</Nav.Link>
+              <Nav.Link onClick={() => setName("hxbit-js")}>hxbit-js</Nav.Link>
+              <Nav.Link onClick={() => setName("heaps-swf")}>heaps-swf</Nav.Link>
+              <Nav.Link onClick={() => setName("heaps-js")}>heaps-js</Nav.Link>
+              <Nav.Link onClick={() => setName("heaps-cubefield-swf")}>heaps-cubefield-swf</Nav.Link>
+              <Nav.Link onClick={() => setName("heaps-cubefield-js")}>heaps-cubefield-js</Nav.Link>
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
@@ -57,7 +59,7 @@ function App() {
   ))}
 </>
 
-<h3>Content</h3>
+<h3>{ name } Content</h3>
 
 <iframe title="myFrame" src="http://www.youtube.com/watch?v=N-czyH3NH0w"></iframe>
 
@@ -65,10 +67,14 @@ function App() {
   </div>
 
   );
+
+  // const updateContent = (a) => {
+  //   console.log(a);
+  //   setName({a})
+  //   console.log(a);
+  // }
 }
 
-  const updateContent = (a) => {
-    console.log(a);
-  }
+
 
 export default App;
