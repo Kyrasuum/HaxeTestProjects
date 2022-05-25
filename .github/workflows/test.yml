@@ -98,22 +98,6 @@ jobs:
           # default false
           search_artifacts: true
 
-      - name: Debug Artificat
-        continue-on-error: true
-        run: ls
-        
-      - name: Run Project
-        continue-on-error: true
-        run: ./node-hx-linux &
-
-      - name: Run HawkScan
-        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
-        continue-on-error: true
-        with:
-          apiKey: ${{ secrets.HAWK_API_KEY }}
-          codeScanningAlerts: true
-          githubToken: ${{ github.token }}
-
   test-hl:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
@@ -159,22 +143,6 @@ jobs:
           # default false
           search_artifacts: true
 
-      - name: Debug Artificat
-        continue-on-error: true
-        run: ls
-        
-      - name: Run Project
-        continue-on-error: true
-        run: ./hl &
-
-      - name: Run HawkScan
-        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
-        continue-on-error: true
-        with:
-          apiKey: ${{ secrets.HAWK_API_KEY }}
-          codeScanningAlerts: true
-          githubToken: ${{ github.token }}
-
   test-cpp:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
@@ -212,19 +180,3 @@ jobs:
           # Optional, search for the last workflow run whose stored an artifact named as in `name` input
           # default false
           search_artifacts: true
-
-      - name: Debug Artificat
-        continue-on-error: true
-        run: ls
-
-      - name: Run Project
-        continue-on-error: true
-        run: ./Main &
-
-      - name: Run HawkScan
-        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
-        continue-on-error: true
-        with:
-          apiKey: ${{ secrets.HAWK_API_KEY }}
-          codeScanningAlerts: true
-          githubToken: ${{ github.token }}
