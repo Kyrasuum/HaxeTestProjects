@@ -1,8 +1,8 @@
 {
-    "name": "strangelet",
+    "name": "node-hx",
     "bin": "bin/main.js",
     "version": "1.0.0",
-    "description": "Simple terminal text editor",
+    "description": "simple node haxe project",
     "dependencies": {
         "blessed-contrib": "^4.11.0",
         "blessed-xterm": "^1.4.2",
