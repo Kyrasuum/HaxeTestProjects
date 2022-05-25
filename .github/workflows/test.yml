@@ -10,14 +10,38 @@ on:
       - completed
 
 jobs:
+  dependency-review:
+    name: Dependency-Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v1
+
   test-js:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for stackhawk/hawkscan-action to upload code scanning alert info
     strategy:
       fail-fast: false
       matrix:
         proj:
           - web-coconut
+          - js async
+          - js heaps
+          - js heaps-cubefield
+          - js hl-tui
+          - js hxbit
+          - js hxwebsockets
+          - js mphx
+          - js udprotean
 
     steps:
       - name: Download artifact
@@ -43,18 +67,77 @@ jobs:
           # default false
           search_artifacts: true
 
+  test-node:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for stackhawk/hawkscan-action to upload code scanning alert info
+    strategy:
+      fail-fast: false
+      matrix:
+        os: 
+          - linux
+        proj:
+          - node
+          - node-oimo
+          - node-p2p
+          - node-p2p-pkg
+          - node-three
+          - node-heaps
+          - node-tui
+
+    steps:
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
+        id: artifact
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build.yml
+          workflow_conclusion: success
+          # Optional, uploaded artifact name,
+          # will download all artifacts if not specified
+          # and extract them in respective subdirectories
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          name: ${{ matrix.os }} ${{ matrix.proj }}
+          # Optional, directory where to extract artifact(s), defaults to current directory
+          path: release
+          # Optional, check the workflow run whether it has an artifact
+          # then will get the last available artifact from previous workflow
+          # default false, just try to download from the last one
+          check_artifacts:  true
+          # Optional, search for the last workflow run whose stored an artifact named as in `name` input
+          # default false
+          search_artifacts: true
+
+      - name: Debug Artificat
+        continue-on-error: true
+        run: ls
+        
+      - name: Run Project
+        continue-on-error: true
+        run: ./node-hx-linux &
+
+      - name: Run HawkScan
+        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
+        continue-on-error: true
+        with:
+          apiKey: ${{ secrets.HAWK_API_KEY }}
+          codeScanningAlerts: true
+          githubToken: ${{ github.token }}
+
   test-hl:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for stackhawk/hawkscan-action to upload code scanning alert info
     strategy:
       fail-fast: false
       matrix:
         os:
           - linux
-          - windows
-          - directx
-          - js
-          - swf
         proj:
           - async
           - heaps
@@ -89,16 +172,33 @@ jobs:
           # default false
           search_artifacts: true
 
+      - name: Debug Artificat
+        continue-on-error: true
+        run: ls
+        
+      - name: Run Project
+        continue-on-error: true
+        run: ./hl &
+
+      - name: Run HawkScan
+        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
+        continue-on-error: true
+        with:
+          apiKey: ${{ secrets.HAWK_API_KEY }}
+          codeScanningAlerts: true
+          githubToken: ${{ github.token }}
+
   test-cpp:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for stackhawk/hawkscan-action to upload code scanning alert info
     strategy:
       fail-fast: false
       matrix:
         os: 
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
         proj:
           - hxraylib
 
@@ -125,3 +225,19 @@ jobs:
           # Optional, search for the last workflow run whose stored an artifact named as in `name` input
           # default false
           search_artifacts: true
+
+      - name: Debug Artificat
+        continue-on-error: true
+        run: ls
+
+      - name: Run Project
+        continue-on-error: true
+        run: ./Main &
+
+      - name: Run HawkScan
+        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
+        continue-on-error: true
+        with:
+          apiKey: ${{ secrets.HAWK_API_KEY }}
+          codeScanningAlerts: true
+          githubToken: ${{ github.token }}
