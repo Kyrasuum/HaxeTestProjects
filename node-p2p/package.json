@@ -1,5 +1,5 @@
 {
-    "name": "karalis",
+    "name": "node-hx",
     "bin": "bin/main.js",
     "version": "1.0.0",
     "description": "Simple 3D game test",
