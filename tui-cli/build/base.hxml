@@ -1,0 +1,7 @@
+-lib heaps
+-lib console.hx
+-lib captain
+-cp src
+-main Main
+-dce full
+-D release
